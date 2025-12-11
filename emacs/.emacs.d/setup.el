@@ -1,0 +1,5 @@
+(ido-mode t)
+(evil-mode t)
+(which-key-mode t)
+(company-mode t)
+(projectile-mode t)
