@@ -1,6 +1,0 @@
-it's C-c C-o to jump to links)
-[[file:~/.emacs.d/main.org][Configuration]]
-[[file:~/.emacs.d/init.el][init.el]]
-[[elisp:customize][customize]]
-[[file:~/.xinitrc][initrc]]
-

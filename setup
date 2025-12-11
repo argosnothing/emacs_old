@@ -1,6 +1,0 @@
-#!/usr/bin/bash
-
-if [ -d "$HOME/.emacs.d/" ]; then
-    echo "Please delete your ~/.emacs.d/ before installing this config"
-fi
-

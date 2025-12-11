@@ -1,0 +1,528 @@
+* Custom Emacs Config
+  Moving on from spacemacs and have decided to create my own awesome emacs config
+* Setup
+** Customize Location
+   #+BEGIN_SRC emacs-lisp
+   #+END_SRC
+
+   #+RESULTS:
+
+** Repo Setup
+   Configure Package Repositories
+   #+BEGIN_SRC emacs-lisp
+     (require 'package)
+     ;;; Code:
+     (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/"))
+     (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
+     (add-to-list 'package-archives '("melpa-stable" . "http://stable.melpa.org/packages/"))
+     (setq package-enable-at-startup nil)
+     (package-initialize)
+   #+END_SRC
+#+RESULTS:
+** Set Startup Buffer
+   #+BEGIN_SRC emacs-lisp
+     (setq initial-buffer-choice "~/.emacs.d/.home.org")
+   #+END_SRC
+
+   #+RESULTS:
+   : ~/.emacs.d/.home.org
+
+** Kill Beep
+   #+BEGIN_SRC emacs-lisp
+     (setq ring-bell-function 'ignore)
+   #+END_SRC
+
+   #+RESULTS:
+   : ignore
+
+* Packages
+** Requires
+   #+BEGIN_SRC emacs-lisp
+     (require 'flycheck)
+     (require 'ox-twbs)
+     (require 'which-key)
+   #+END_SRC
+
+  #+RESULTS:
+  : which-key
+
+** Evil
+*** Init
+#+BEGIN_SRC emacs-lisp
+(require 'evil)
+(evil-mode 1)
+#+END_SRC
+#+RESULTS:
+: t
+** Company
+*** Init
+    #+BEGIN_SRC emacs-lisp
+    (require 'company)
+    (company-mode 1)
+    #+END_SRC
+
+    #+RESULTS:
+    : t
+    
+*** Configuration
+    Configure Company Mode
+    #+BEGIN_SRC emacs-lisp
+      (use-package company
+	:config
+	(progn
+	  (add-hook 'after-init-hook 'global-company-mode)
+	  (global-set-key (kbd "M-/") 'company-complete-common-or-cycle)
+	  (define-key company-active-map (kbd "C-n") 'company-select-next)
+	  (define-key company-active-map (kbd "C-p") 'company-select-previous)
+	  (setq company-idle-delay 0)))
+    #+END_SRC
+
+    #+RESULTS:
+    : t
+
+** Org
+*** Configuration
+    #+BEGIN_SRC emacs-lisp
+      (use-package org
+	:config
+	(progn
+	  (setq org-src-window-setup 'current-window)
+	  (setq org-src-fontify-natively t)
+	  (setq org-link-frame-setup '((file . find-file)))
+	  (setq org-confirm-babel-evaluate nil)
+	  (setq org-confirm-elisp-link-function nil)
+	  (setq vc-follow-symlinks nil))
+	:defer t
+	:config
+	(bind-key "C-c a t" 'org-todo-list org-mode-map))
+   #+END_SRC
+
+   #+RESULTS:
+   : t
+
+** Flycheck
+*** Init
+    #+BEGIN_SRC emacs-lisp
+    #+END_SRC
+
+    #+RESULTS:
+
+*** Configuration
+    #+BEGIN_SRC emacs-lisp
+      (use-package flycheck
+	:config
+	(progn
+	  (global-flycheck-mode)))
+    #+END_SRC
+
+    #+RESULTS:
+    : t
+
+**** Disable in org-source code block
+     #+BEGIN_SRC emacs-lisp
+       (require 'flycheck)
+       (defun disable-flycheck-in-org-src-block ()
+	 (setq-local flycheck-disabled-checkers '(emacs-lisp-checkdoc)))
+       (add-hook 'org-src-mode-hook 'disable-flycheck-in-org-src-block)
+     #+END_SRC
+
+     #+RESULTS:
+     | disable-flycheck-in-org-src-block | org-src-babel-configure-edit-buffer | org-src-mode-configure-edit-buffer |
+** Which-key
+*** init
+    #+BEGIN_SRC emacs-lisp
+        (which-key-mode 1)
+    #+END_SRC
+
+   #+RESULTS:
+   : t
+
+** Irony
+   #+BEGIN_SRC emacs-lisp
+     (add-hook 'c++-mode-hook 'irony-mode)
+     (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
+     (add-hook 'irony-mode-hook #'irony-eldoc)
+   #+END_SRC
+
+   #+RESULTS:
+   | irony-eldoc | irony-cdb-autosetup-compile-options |
+
+** EXWM
+   :PROPERTIES:
+   :CUSTOM_ID: exwm
+   :END:
+   #+BEGIN_SRC emacs-lisp
+     ;(require 'exwm)
+     ;(require 'exwm-config)
+     ;(fringe-mode 1)
+     ;(server-start)
+     ;
+     ;(setq exwm-workspace-number 4)
+     ;
+     ;(add-hook 'exwm-update-class-hook
+	       ;(lambda ()
+		 ;(exwm-workspace-rename-buffer exwm-class-name)))
+     ;(add-hook 'exwm-update-title-hook
+	       ;(lambda ()
+		 ;(when (or (not exwm-instance-name)
+			   ;(string-prefix-p "sun-awt-X11-" exwm-instance-name)
+			   ;(string= "gimp" exwm-instance-name))
+		   ;(exwm-workspace-rename-buffer exwm-title))))
+     ;
+     ;(setq exwm-input-global-keys
+	   ;`(
+	     ;([?\s-r] . exwm-reset)
+	     ;([?\s-q] . delete-window)
+	     ;([?\s-/] . (lambda ()
+			  ;(interactive)
+			  ;(progn
+			    ;(split-window-right)
+			    ;(windmove-right)
+			    ;(helm-buffers-list))))
+	     ;([?\s--] . (lambda ()
+			  ;(interactive)
+			  ;(progn
+			    ;(split-window-below)
+			    ;(windmove-down)
+			    ;(helm-buffers-list))))
+	     ;([?\s-w] . exwm-workspace-switch)
+	     ;([?\s-s] . (lambda (command)
+			  ;(interactive (list (read-shell-command "$ ")))
+			  ;(start-process-shell-command command nil command)))))
+     ;(exwm-enable)
+   #+END_SRC
+
+   #+RESULTS:
+
+** Helm
+   #+BEGIN_SRC emacs-lisp
+     ;(use-package helm
+       ;:config
+       ;(progn
+	 ;(setq helm-display-function 'helm-display-buffer-in-own-frame
+	       ;helm-display-buffer-reuse-frame t
+	       ;helm-use-undecorated-frame-option t)))
+   #+END_SRC
+
+   #+RESULTS:
+
+* Scripts and assists
+** C++
+*** Todos
+**** TODO Jump to definition for c++ header includes
+**** TODO Projectile go to file under cursor (optionally move this to general scripts)
+*** Swap to header or vice-versa
+    #+BEGIN_SRC emacs-lisp
+      (require 'projectile)
+      (require 'helm)
+      (require 'evil)
+      (defun ends-with? (str containing)
+	"Code: Sees if CONTAINING is at the end of STR."
+	(interactive)
+	(if (equal (substring str
+			      (- (length str)
+				 (length containing))
+			(length str))
+	     containing)
+	    t
+	  nil))
+
+      (defun swap-ends (str from to)
+	"Code: Swap the suffix of STR FROM to TO."
+	(interactive)
+	(if (ends-with? str from)
+	    (concat
+	     (substring str 0
+			(- (length str)
+			   (length from)))
+	     to)
+	  nil))
+
+      (defun swap ()
+	"Code: Jump from a header file to its implementation or vice-versa if they exist."
+	(interactive)
+	(cond ((ends-with? buffer-file-name ".cpp")
+	       (if (file-exists-p (swap-ends buffer-file-name ".cpp" ".h"))
+		   (find-file (swap-ends buffer-file-name ".cpp" ".h"))
+		 (message "no header file")))
+	      ((ends-with? buffer-file-name ".h")
+	       (if (file-exists-p (swap-ends buffer-file-name ".h" ".cpp"))
+		   (find-file (swap-ends buffer-file-name ".h" ".cpp"))
+		 (message "no implementation file")))))
+
+      (add-hook 'c++-mode-hook
+		(lambda () (local-set-key (kbd "C-c c") 'compile)))
+      (add-hook 'c++-mode-hook
+		(lambda () (define-key evil-normal-state-map (kbd "<C-SPC>") 'swap)))
+      (projectile-load-known-projects)
+
+    #+END_SRC
+
+    #+RESULTS:
+    | ~/repos/emacs-config/ | ~/repos/custom-builds/ | ~/projects/manager/ | ~/dotfiles/ | ~/scripts/ | ~/projects/manager/ |
+*** Relative
+    #+BEGIN_SRC emacs-lisp
+      (require 'nlinum)
+      (add-hook 'c++-mode-hook
+		(lambda () (nlinum-relative-mode)))
+
+    #+END_SRC
+
+    #+RESULTS:
+    | (lambda nil (nlinum-relative-mode)) | (lambda nil (define-key evil-normal-state-map (kbd <C-SPC>) (quote swap))) | (lambda nil (local-set-key (kbd C-c c) (quote compile))) | irony-mode |
+
+* Keybinds
+*** Global ( spacemacs inspired ) 
+    Requires evil helm and neotree
+    #+BEGIN_SRC emacs-lisp
+      (require 'evil)
+      (require 'helm)
+      (require 'helm-files)
+      (require 'neotree)
+      (defun add (k-map binding func)
+	  "Given K-MAP BINDING and FUNC."
+	  (interactive)
+	  (define-key k-map (kbd binding) func)
+	  )
+      (defun set-main-keymaps()
+	  "Set keymaps."
+	  (let ((map (make-sparse-keymap))
+	      (e-normal evil-normal-state-map))
+	  (progn
+	      ;(evil-ex-define-cmd "q" 'kill-this-buffer)
+	      ;(evil-ex-define-cmd "quit" 'evil-quit)
+	      (add map "C-x b" 'helm-buffers-list)
+	      (add map "C-x f" 'helm-find-files)
+	      (add e-normal "<SPC> b d" 'kill-current-buffer)
+	      (add e-normal "<SPC> b b" 'helm-buffers-list)
+	      (add e-normal "<SPC> b p" 'previous-buffer)
+	      (add e-normal "<SPC> b n" 'next-buffer)
+	      (add e-normal "<SPC> w k" 'windmove-up)
+	      (add e-normal "<SPC> w j" 'windmove-down)
+	      (add e-normal "<SPC> w h" 'windmove-left)
+	      (add e-normal "<SPC> w l" 'windmove-right)
+	      (add e-normal "<SPC> w /" (lambda ()
+					  (interactive)
+					  (progn
+					    (split-window-right)
+					    (windmove-right))))
+	      (add e-normal "<SPC> w -" (lambda ()
+					  (interactive)
+					  (progn
+					    (split-window-below)
+					    (windmove-down))))
+	      (add e-normal "<SPC> f f" 'helm-find-files)
+	      (add e-normal "<SPC> <SPC>" 'helm-M-x)
+	      (add e-normal "<SPC> f t" 'neotree-toggle)
+	      (add e-normal "<SPC> p f"
+	      (defun project-dir ()
+		  (interactive)
+		  (helm-find-files-1 "~/projects/")))
+	      (add e-normal "<SPC> f e d"
+	      (defun main-config()
+		  (interactive) (find-file "~/.emacs.d/main.org")))
+	      (add e-normal "<SPC> b h"
+		   (defun home-buffer()
+		     (interactive) (find-file "~/.emacs.d/.home.org")))
+	      )
+	  map))
+      (set-main-keymaps)
+
+      (require 'helm)
+      (require 'helm-files)
+      (require 'helm-command)
+      ;(global-unset-key (kbd "\C-f"))
+      ;(local-unset-key (kbd "\C-f"))
+      (define-prefix-command 'custom-map)
+      (global-set-key (kbd "<C-return>") 'custom-map)
+      (defun goconfig (conf-file)
+      "Go to main configuration CONF-FILE as input file."
+      (interactive)
+      (defvar a-base "~/.emacs.d/")
+      (if (equal ".emacs" conf-file)
+	  (find-file (concat a-base conf-file))
+	  (find-file (concat a-base ".emacs.d/" conf-file))))
+
+      (define-key helm-map (kbd "TAB") #'helm-execute-persistent-action)
+      (define-key helm-map (kbd "C-h") #'helm-find-files-up-one-level)
+
+      (add-hook 'helm-after-initialize-hook
+	      (lambda()
+		  (define-key helm-buffer-map (kbd "ESC") 'helm-keyboard-quit)
+		  (define-key helm-M-x-map (kbd "ESC") 'helm-keyboard-quit)
+		  (define-key helm-map (kbd "ESC") 'helm-keyboard-quit)
+		  (define-key helm-find-files-map (kbd "ESC") 'helm-keyboard-quit)))
+
+      (add-hook 'neotree-mode-hook
+	      (lambda ()
+		  (define-key evil-normal-state-local-map (kbd "TAB") 'neotree-enter)
+		  (define-key evil-normal-state-local-map (kbd "SPC") 'neotree-enter)
+		  (define-key evil-normal-state-local-map (kbd "q") 'neotree-hide)
+		  (define-key evil-normal-state-local-map (kbd "RET") 'neotree-enter)))
+
+      (define-key 'custom-map (kbd "c m") (defun main () (interactive) (goconfig ".emacs")))
+      (define-key 'custom-map (kbd "c g") (defun globalkeys() (interactive) (goconfig "globalkeys.el")))
+      (define-key 'custom-map (kbd "l C-p p") (defun cppconfig() (interactive) (goconfig "c++config.el")))
+      (define-key 'custom-map (kbd "c c") (defun configs() (interactive) (helm-find-files-1 "~/.emacs.d/")))
+      (define-key 'custom-map (kbd "p") (defun projects() (interactive) (helm-find-files-1 "~/projects/")))
+
+    #+END_SRC
+
+    #+RESULTS:
+    : projects
+* Appearance
+** Theming
+*** Theme
+    #+BEGIN_SRC emacs-lisp
+      (require 'doom-themes)
+      (load-theme 'doom-Iosvkem t)
+    #+END_SRC
+
+    #+RESULTS:
+    : t
+
+**** Theme list
+     #+BEGIN_SRC emacs-lisp :results output
+       (mapc (lambda (x) (print x)) (custom-available-themes))
+     #+END_SRC
+
+     #+RESULTS:
+     #+begin_example
+
+     doom-Iosvkem
+
+     doom-challenger-deep
+
+     doom-city-lights
+
+     doom-dracula
+
+     doom-molokai
+
+     doom-nord-light
+
+     doom-nord
+
+     doom-nova
+
+     doom-one-light
+
+     doom-one
+
+     doom-opera-light
+
+     doom-opera
+
+     doom-peacock
+
+     doom-solarized-light
+
+     doom-sourcerer
+
+     doom-spacegrey
+
+     doom-tomorrow-day
+
+     doom-tomorrow-night
+
+     doom-vibrant
+
+     gruber-darker
+
+     gruvbox-dark-hard
+
+     gruvbox-dark-medium
+
+     gruvbox-dark-soft
+
+     gruvbox-light-hard
+
+     gruvbox-light-medium
+
+     gruvbox-light-soft
+
+     gruvbox
+
+     solarized-dark
+
+     solarized-light
+
+     solarized
+
+     spacemacs-dark
+
+     spacemacs-light
+
+     adwaita
+
+     deeper-blue
+
+     dichromacy
+
+     leuven
+
+     light-blue
+
+     manoj-dark
+
+     misterioso
+
+     tango-dark
+
+     tango
+
+     tsdh-dark
+
+     tsdh-light
+
+     wheatgrass
+
+     whiteboard
+
+     wombat
+     #+end_example
+
+*** Transparency
+    #+BEGIN_SRC emacs-lisp
+      (let ((first 90)
+	    (second 86))
+	(set-frame-parameter (selected-frame) 'alpha (list first second))
+	(add-to-list 'default-frame-alist (list 'alpha first second)))
+    #+END_SRC
+
+    #+RESULTS:
+    | alpha                | 90 | 86 |
+    | vertical-scroll-bars |    |    |
+
+** Ido Stuff
+   #+BEGIN_SRC emacs-lisp
+     (custom-set-faces
+      '(ido-subdir ((t (:foreground "#66ff00")))) ;; Face used by ido for highlighting subdirs in the alternatives.
+      '(ido-first-match ((t (:foreground "#ccff66")))) ;; Face used by ido for highlighting first match.
+      '(ido-only-match ((t (:foreground "#ffcc33")))) ;; Face used by ido for highlighting only match.
+      '(ido-indicator ((t (:foreground "#ffffff")))) ;; Face used by ido for highlighting its indicators (don't actually use this)
+      '(ido-incomplete-regexp ((t (:foreground "#ffffff")))) ;; Ido face for indicating incomplete regexps. (don't use this either
+      )
+   #+END_SRC
+
+   #+RESULTS:
+** Helm Appearance
+   #+BEGIN_SRC emacs-lisp
+     (add-to-list 'display-buffer-alist
+		  `(,(rx bos "*helm" (* not-newline) "*" eos)
+		       (display-buffer-in-side-window)
+		       (inhibit-same-window . t)
+		       (window-height . 0.33)))
+   #+END_SRC
+
+   #+RESULTS:
+   | \`\*helm.*\*\' | (display-buffer-in-side-window) | (inhibit-same-window . t) | (window-height . 0.33) |
+** MSC
+   #+BEGIN_SRC emacs-lisp
+     (show-paren-mode 1)
+     (menu-bar-mode -1)
+     (tool-bar-mode -1)
+     (scroll-bar-mode -1)
+   #+END_SRC
+
+   #+RESULTS:
